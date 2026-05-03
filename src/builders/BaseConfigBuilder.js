@@ -286,18 +286,8 @@ export class BaseConfigBuilder {
                 // Merge nameserver-policy object
                 result[key] = { ...(result[key] || {}), ...deepCopy(value) };
             } else if (key === 'servers' && Array.isArray(value)) {
-                // Smart merge: preserve existing servers, add new ones from default config.
-                // Existing (user's) servers take priority — their predefined/detour/etc. are kept.
-                if (Array.isArray(result[key])) {
-                    const merged = deepCopy(result[key]);
-                    for (const server of value) {
-                        const exists = merged.some(s => s.tag === server.tag && s.type === server.type);
-                        if (!exists) merged.push(server);
-                    }
-                    result[key] = merged;
-                } else {
-                    result[key] = deepCopy(value);
-                }
+                // Skip dns.servers merge entirely — preserve user's servers as-is to avoid
+                // compatibility issues with custom server types (group, etc.)
             } else {
                 result[key] = deepCopy(value);
             }
