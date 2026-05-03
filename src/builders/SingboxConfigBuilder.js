@@ -495,19 +495,9 @@ export class SingboxConfigBuilder extends BaseConfigBuilder {
         this.config.route.rules = this.config.route.rules || [];
         this.config.route.rule_set = [...site_rule_sets, ...ip_rule_sets];
 
-        // Also set dns.rule_set so DNS rules can reference rule sets
+        // Skip setting dns.rule_set — let DNS rules in route.rules handle rule_set references
+        // This avoids compatibility issues with older sing-box clients
         this.config.dns = this.config.dns || {};
-        const allRuleSets = new Set([...site_rule_sets, ...ip_rule_sets]);
-        if (this.config.dns.rules) {
-            for (const rule of this.config.dns.rules) {
-                if (Array.isArray(rule.rule_set)) {
-                    for (const rs of rule.rule_set) {
-                        if (rs) allRuleSets.add(rs);
-                    }
-                }
-            }
-        }
-        this.config.dns.rule_set = [...allRuleSets];
 
         // Add outbound_providers if we have any
         if (this.providerUrls.length > 0) {
