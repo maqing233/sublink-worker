@@ -425,6 +425,10 @@ export function parseSelectedRules(raw) {
         const parsed = JSON.parse(raw);
         return Array.isArray(parsed) ? parsed : [];
     } catch {
+        // 尝试逗号分隔的规则名列表（如 "Discord,Spotify"）
+        if (typeof raw === 'string' && raw.includes(',')) {
+            return raw.split(',').map(x => x.trim()).filter(Boolean);
+        }
         // 解析失败，回退到 minimal 预设
         console.warn(`Failed to parse selectedRules: ${raw}, falling back to minimal`);
         return PREDEFINED_RULE_SETS.minimal;
