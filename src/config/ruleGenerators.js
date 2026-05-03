@@ -88,6 +88,9 @@ export function generateRules(selectedRules = [], customRules = []) {
 export function generateRuleSets(selectedRules = [], customRules = []) {
 	if (typeof selectedRules === 'string' && PREDEFINED_RULE_SETS[selectedRules]) {
 		selectedRules = PREDEFINED_RULE_SETS[selectedRules];
+	} else if (typeof selectedRules === 'string') {
+		// Plain rule name string -> convert to array
+		selectedRules = selectedRules.split(',').map(x => x.trim()).filter(Boolean);
 	}
 
 	if (!selectedRules || selectedRules.length === 0) {
@@ -161,6 +164,9 @@ export function generateRuleSets(selectedRules = [], customRules = []) {
 export function generateClashRuleSets(selectedRules = [], customRules = [], useMrs = true) {
 	if (typeof selectedRules === 'string' && PREDEFINED_RULE_SETS[selectedRules]) {
 		selectedRules = PREDEFINED_RULE_SETS[selectedRules];
+	} else if (typeof selectedRules === 'string') {
+		// Plain rule name string -> convert to array
+		selectedRules = selectedRules.split(',').map(x => x.trim()).filter(Boolean);
 	}
 
 	if (!selectedRules || selectedRules.length === 0) {
