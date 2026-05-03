@@ -285,6 +285,16 @@ export class BaseConfigBuilder {
             } else if (key === 'nameserver-policy' && typeof value === 'object' && !Array.isArray(value)) {
                 // Merge nameserver-policy object
                 result[key] = { ...(result[key] || {}), ...deepCopy(value) };
+            } else if (key === 'servers' && Array.isArray(value)) {
+                // Smart merge for servers: preserve user's hosts-type servers' predefined field
+                if (Array.isArray(result[key])) {
+                    const existingHosts = result[key].filter(s => s?.type === 'hosts');
+                    // Use incoming servers but restore any existing hosts entries with predefined
+                    const incomingWithoutHosts = value.filter(s => s?.type !== 'hosts');
+                    result[key] = [...incomingWithoutHosts, ...existingHosts];
+                } else {
+                    result[key] = deepCopy(value);
+                }
             } else {
                 result[key] = deepCopy(value);
             }
