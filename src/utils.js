@@ -392,9 +392,9 @@ export function parseCountryFromNodeName(nodeName) {
 
 	const patterns = allEntries.map(({ alias, escaped }) => {
 		if (alias.length <= 3 && /^[A-Za-z]+$/.test(alias)) {
-			return `\\b${escaped}\\b`;
+			return `(?<![a-zA-Z])${escaped}(?![a-zA-Z])`;
 		}
-		return escaped;
+		return escaped.replace(/ /g, '[\\s\\-_]*');
 	});
 
 	const regex = new RegExp(patterns.join('|'), 'i');
