@@ -277,27 +277,29 @@ export class BaseConfigBuilder {
         Object.entries(incoming).forEach(([key, value]) => {
             if (mergeableArrayKeys.has(key) && Array.isArray(value)) {
                 if (Array.isArray(result[key])) {
-                    // Merge arrays and deduplicate
                     result[key] = [...new Set([...result[key], ...value])];
                 } else {
                     result[key] = deepCopy(value);
                 }
             } else if (key === 'nameserver-policy' && typeof value === 'object' && !Array.isArray(value)) {
-                // Merge nameserver-policy object
                 result[key] = { ...(result[key] || {}), ...deepCopy(value) };
             } else if (key === 'servers' && Array.isArray(value)) {
-                // Skip dns.servers merge entirely — preserve user's servers as-is to avoid
-                // compatibility issues with custom server types (group, etc.)
+                // Filter out unsupported DNS server types (group is not a valid sing-box DNS server type)
+                const unsupportedTypes = new Set(['group']);
+                if (Array.isArray(result[key])) {
+                    const existingHosts = result[key].filter(s => s?.type === 'hosts');
+                    const incomingWithoutHosts = value.filter(s => s?.type !== 'hosts');
+                    const incomingSupported = incomingWithoutHosts.filter(s => !unsupportedTypes.has(s?.type));
+                    result[key] = [...incomingSupported, ...existingHosts];
+                } else {
+                    result[key] = deepCopy(value);
+                }
             } else {
                 result[key] = deepCopy(value);
             }
         });
 
         return result;
-    }
-
-    hasConfigOverride(key) {
-        return this.appliedOverrideKeys?.has(key);
     }
 
     getSubscriptionUserinfo() {
