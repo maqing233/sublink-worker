@@ -284,16 +284,7 @@ export class BaseConfigBuilder {
             } else if (key === 'nameserver-policy' && typeof value === 'object' && !Array.isArray(value)) {
                 result[key] = { ...(result[key] || {}), ...deepCopy(value) };
             } else if (key === 'servers' && Array.isArray(value)) {
-                // Filter out unsupported DNS server types (group is not a valid sing-box DNS server type)
-                const unsupportedTypes = new Set(['group']);
-                if (Array.isArray(result[key])) {
-                    const existingHosts = result[key].filter(s => s?.type === 'hosts');
-                    const incomingWithoutHosts = value.filter(s => s?.type !== 'hosts');
-                    const incomingSupported = incomingWithoutHosts.filter(s => !unsupportedTypes.has(s?.type));
-                    result[key] = [...incomingSupported, ...existingHosts];
-                } else {
-                    result[key] = deepCopy(value);
-                }
+                // Completely skip dns.servers — preserve user's servers array as-is
             } else {
                 result[key] = deepCopy(value);
             }
