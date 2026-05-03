@@ -401,9 +401,9 @@ export function parseCountryFromNodeName(nodeName) {
 	const match = nodeName.match(regex);
 
 	if (match) {
-		const matchedAlias = match[0];
+		const matchedAlias = match[0].replace(/\s+/g, '').toLowerCase();
 		for (const code in COUNTRY_DATA) {
-			if (COUNTRY_DATA[code].aliases.some(alias => alias.toLowerCase() === matchedAlias.toLowerCase())) {
+			if (COUNTRY_DATA[code].aliases.some(alias => alias.replace(/\s+/g, '').toLowerCase() === matchedAlias)) {
 				return { code, ...COUNTRY_DATA[code] };
 			}
 		}
