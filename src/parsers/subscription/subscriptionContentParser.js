@@ -22,13 +22,14 @@ const SINGBOX_GROUP_TYPES = new Set(['selector', 'urltest']);
 export function parseSingboxJson(content) {
     try {
         const parsed = JSON.parse(content);
-        if (parsed && typeof parsed === 'object' && Array.isArray(parsed.outbounds)) {
-            const proxies = parsed.outbounds.filter(o =>
-                o && typeof o === 'object' &&
-                o.server && o.type &&
-                !SINGBOX_NON_PROXY_TYPES.has(o.type)
-            );
-            if (proxies.length > 0) {
+        if (parsed && typeof parsed === 'object') {
+            // Has outbounds — extract proxies and groups
+            if (Array.isArray(parsed.outbounds)) {
+                const proxies = parsed.outbounds.filter(o =>
+                    o && typeof o === 'object' &&
+                    o.server && o.type &&
+                    !SINGBOX_NON_PROXY_TYPES.has(o.type)
+                );
                 const configOverrides = deepCopy(parsed);
                 delete configOverrides.outbounds;
 
@@ -46,6 +47,15 @@ export function parseSingboxJson(content) {
                     type: 'singboxConfig',
                     proxies,
                     config: Object.keys(configOverrides).length > 0 ? configOverrides : null
+                };
+            }
+
+            // No outbounds but has other config fields (e.g. dns-only config) — treat as config override
+            if (Object.keys(parsed).length > 0) {
+                return {
+                    type: 'singboxConfig',
+                    proxies: [],
+                    config: parsed
                 };
             }
         }
