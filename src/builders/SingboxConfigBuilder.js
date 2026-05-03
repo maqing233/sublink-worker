@@ -488,6 +488,7 @@ export class SingboxConfigBuilder extends BaseConfigBuilder {
         const { site_rule_sets, ip_rule_sets } = generateRuleSets(this.selectedRules, this.customRules);
 
         this.config.route = this.config.route || {};
+        this.config.route.rules = this.config.route.rules || [];
         this.config.route.rule_set = [...site_rule_sets, ...ip_rule_sets];
 
         // Add outbound_providers if we have any
