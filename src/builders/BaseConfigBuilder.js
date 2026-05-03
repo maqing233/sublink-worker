@@ -286,12 +286,15 @@ export class BaseConfigBuilder {
                 // Merge nameserver-policy object
                 result[key] = { ...(result[key] || {}), ...deepCopy(value) };
             } else if (key === 'servers' && Array.isArray(value)) {
-                // Smart merge for servers: preserve user's hosts-type servers' predefined field
+                // Smart merge: preserve existing servers, add new ones from default config.
+                // Existing (user's) servers take priority — their predefined/detour/etc. are kept.
                 if (Array.isArray(result[key])) {
-                    const existingHosts = result[key].filter(s => s?.type === 'hosts');
-                    // Use incoming servers but restore any existing hosts entries with predefined
-                    const incomingWithoutHosts = value.filter(s => s?.type !== 'hosts');
-                    result[key] = [...incomingWithoutHosts, ...existingHosts];
+                    const merged = deepCopy(result[key]);
+                    for (const server of value) {
+                        const exists = merged.some(s => s.tag === server.tag && s.type === server.type);
+                        if (!exists) merged.push(server);
+                    }
+                    result[key] = merged;
                 } else {
                     result[key] = deepCopy(value);
                 }
