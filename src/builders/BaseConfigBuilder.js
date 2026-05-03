@@ -284,7 +284,14 @@ export class BaseConfigBuilder {
             } else if (key === 'nameserver-policy' && typeof value === 'object' && !Array.isArray(value)) {
                 result[key] = { ...(result[key] || {}), ...deepCopy(value) };
             } else if (key === 'servers' && Array.isArray(value)) {
-                // Completely skip dns.servers — preserve user's servers array as-is
+                // Merge user's servers with default servers, avoiding duplicates by tag
+                if (Array.isArray(result[key])) {
+                    const resultTags = new Set(result[key].map(s => s?.tag));
+                    const toAdd = value.filter(s => s?.tag && !resultTags.has(s.tag));
+                    result[key] = [...result[key], ...toAdd];
+                } else {
+                    result[key] = deepCopy(value);
+                }
             } else {
                 result[key] = deepCopy(value);
             }
