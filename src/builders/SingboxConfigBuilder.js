@@ -21,7 +21,11 @@ export class SingboxConfigBuilder extends BaseConfigBuilder {
         this.singboxVersion = singboxVersion;  // '1.11' or '1.12'
 
         if (this.config?.dns?.servers?.length > 0) {
-            this.config.dns.servers[0].detour = this.t('outboundNames.Node Select');
+            const firstServer = this.config.dns.servers[0];
+            // hosts-type servers don't support detour field
+            if (firstServer?.type !== 'hosts') {
+                firstServer.detour = this.t('outboundNames.Node Select');
+            }
         }
     }
 
