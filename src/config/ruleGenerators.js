@@ -4,7 +4,11 @@
  */
 
 import { UNIFIED_RULES, PREDEFINED_RULE_SETS, SITE_RULE_SETS, IP_RULE_SETS, CLASH_SITE_RULE_SETS, CLASH_IP_RULE_SETS } from './rules.js';
-import { SITE_RULE_SET_BASE_URL, IP_RULE_SET_BASE_URL, CLASH_SITE_RULE_SET_BASE_URL, CLASH_IP_RULE_SET_BASE_URL } from './ruleUrls.js';
+import {
+	SITE_RULE_SET_BASE_URL, IP_RULE_SET_BASE_URL,
+	CLASH_SITE_RULE_SET_BASE_URL, CLASH_IP_RULE_SET_BASE_URL,
+	DISCORD_SITE_RULE_SET_BASE_URL, DISCORD_CLASH_SITE_RULE_SET_BASE_URL
+} from './ruleUrls.js';
 
 function toStringArray(value) {
 	if (Array.isArray(value)) {
@@ -16,6 +20,18 @@ function toStringArray(value) {
 		return value.split(',').map(x => x.trim()).filter(Boolean);
 	}
 	return [];
+}
+
+// Resolve the correct base URL for a given site rule (Discord uses MetaCubeX, others use DustinWin)
+function resolveSiteRuleUrl(rule) {
+	if (rule === 'discord') return DISCORD_SITE_RULE_SET_BASE_URL;
+	return SITE_RULE_SET_BASE_URL;
+}
+
+// Resolve the correct Clash base URL for a given site rule
+function resolveClashSiteRuleUrl(rule) {
+	if (rule === 'discord') return DISCORD_CLASH_SITE_RULE_SET_BASE_URL;
+	return CLASH_SITE_RULE_SET_BASE_URL;
 }
 
 // Helper function to get outbounds based on selected rule names
@@ -96,7 +112,7 @@ export function generateRuleSets(selectedRules = [], customRules = []) {
 		tag: rule,
 		type: 'remote',
 		format: 'binary',
-		url: `${SITE_RULE_SET_BASE_URL}${SITE_RULE_SETS[rule]}`,
+		url: `${resolveSiteRuleUrl(rule)}${SITE_RULE_SETS[rule]}`,
 	}));
 
 	const ip_rule_sets = Array.from(ipRuleSets).map(rule => ({
@@ -175,7 +191,7 @@ export function generateClashRuleSets(selectedRules = [], customRules = [], useM
 			type: 'http',
 			format: format,
 			behavior: 'domain',
-			url: `${CLASH_SITE_RULE_SET_BASE_URL}${rule}${ext}`,
+			url: `${resolveClashSiteRuleUrl(rule)}${rule}${ext}`,
 			path: `./ruleset/${rule}${ext}`,
 			interval: 86400
 		};
